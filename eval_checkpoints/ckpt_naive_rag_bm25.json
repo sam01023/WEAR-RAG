@@ -1,0 +1,951 @@
+{
+  "completed_ids": [
+    "5a8b57f25542995d1e6f1371",
+    "5a8c7595554299585d9e36b6",
+    "5a85ea095542994775f606a8",
+    "5adbf0a255429947ff17385a",
+    "5a8e3ea95542995a26add48d",
+    "5abd94525542992ac4f382d2",
+    "5a85b2d95542997b5ce40028",
+    "5a87ab905542996e4f3088c1",
+    "5a7bbb64554299042af8f7cc",
+    "5a8db19d5542994ba4e3dd00",
+    "5a7166395542994082a3e814",
+    "5a877e5d5542993e715abf7d",
+    "5ab3b0bf5542992ade7c6e39",
+    "5ab56e32554299637185c594",
+    "5ab6d09255429954757d337d",
+    "5a75e05c55429976ec32bc5f",
+    "5ab3e45655429976abd1bcd4",
+    "5ab29c24554299449642c932",
+    "5ae0d4c9554299603e418468",
+    "5a8133725542995ce29dcbdb",
+    "5ae7a8175542993210983ed8",
+    "5ae6050f55429929b0807a5e",
+    "5adddccd5542997dc7907069",
+    "5ae2070a5542994d89d5b313",
+    "5ae22b8d554299234fd0440f",
+    "5a722b8655429971e9dc9329",
+    "5adf37a95542995ec70e8f97",
+    "5abd259d55429924427fcf1a",
+    "5a828c8355429966c78a6a50",
+    "5a8a3e745542996c9b8d5e70",
+    "5ac23ff0554299636651994d",
+    "5ae4a3265542995ad6573de5",
+    "5ae0361155429925eb1afc2c",
+    "5abc0a5d5542993f40c73c64",
+    "5a7cc50e554299452d57ba3e",
+    "5abf63f15542997ec76fd3ea",
+    "5a8ef2a75542995a26add583",
+    "5a80721b554299485f5985ef",
+    "5ab51dae5542991779162d82",
+    "5a7571135542992d0ec05f98",
+    "5a7a0e1e5542990783324e1a",
+    "5a74106b55429979e288289e",
+    "5a79311755429970f5fffe67",
+    "5ab2d3df554299194fa9352c",
+    "5a760ab65542994ccc918697",
+    "5a7d54165542995f4f402256",
+    "5ab859a955429934fafe6d7b",
+    "5add61d65542995b365fab21",
+    "5a8e068b5542995085b37384",
+    "5abbf698554299114383a0b5"
+  ],
+  "partial_results": [
+    {
+      "id": "5a8b57f25542995d1e6f1371",
+      "predicted": "I don't know. The evidence provided does not contain information about Ed Wood's nationality.",
+      "retrieved_ids": [
+        "Doctor Strange (2016 film)",
+        "Conrad Brooks",
+        "Scott Derrickson",
+        "Woodson, Arkansas",
+        "Sinister (film)"
+      ],
+      "scores": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.4
+      ]
+    },
+    {
+      "id": "5a8c7595554299585d9e36b6",
+      "predicted": "I don't know. The evidence provided does not contain information about the government position held by the woman who portrayed Corliss Archer in the film Kiss and Tell.",
+      "retrieved_ids": [
+        "A Kiss for Corliss",
+        "Secretary of State for Constitutional Affairs",
+        "Meet Corliss Archer (TV series)",
+        "Charles Craft",
+        "Village accountant"
+      ],
+      "scores": [
+        0.47058823529411764,
+        0.4117647058823529,
+        0.4117647058823529,
+        0.35294117647058826,
+        0.35294117647058826
+      ]
+    },
+    {
+      "id": "5a85ea095542994775f606a8",
+      "predicted": "I don't know. The evidence provided does not mention any companion books for the Animorphs series that narrate the stories of enslaved worlds and alien species.",
+      "retrieved_ids": [
+        "Animorphs",
+        "List of Square Enix companion books",
+        "Victoria Hanley",
+        "Left Behind: The Kids",
+        "The Divide trilogy"
+      ],
+      "scores": [
+        0.5833333333333334,
+        0.4583333333333333,
+        0.4583333333333333,
+        0.4166666666666667,
+        0.4166666666666667
+      ]
+    },
+    {
+      "id": "5adbf0a255429947ff17385a",
+      "predicted": "Yes, the Laleli Mosque and Esma Sultan Mansion are located in the same neighborhood, Fatih, in Istanbul, Turkey.",
+      "retrieved_ids": [
+        "Esma Sultan Mansion",
+        "Sultan Ahmed Mosque",
+        "Djama\u00e2 el Kebir",
+        "Laleli Mosque",
+        "Gevheri Kad\u0131n"
+      ],
+      "scores": [
+        0.5833333333333334,
+        0.5,
+        0.5,
+        0.4166666666666667,
+        0.3333333333333333
+      ]
+    },
+    {
+      "id": "5a8e3ea95542995a26add48d",
+      "predicted": "I don't know. The evidence provided does not mention the director's location.",
+      "retrieved_ids": [
+        "Big Stone Gap (film)",
+        "I Love NY (2015 film)",
+        "Nola (film)",
+        "Hamish and Andy's Gap Year",
+        "New York Society of Model Engineers"
+      ],
+      "scores": [
+        0.5333333333333333,
+        0.5333333333333333,
+        0.5333333333333333,
+        0.4666666666666667,
+        0.4666666666666667
+      ]
+    },
+    {
+      "id": "5abd94525542992ac4f382d2",
+      "predicted": "2014 S/S is the debut album of a South Korean boy group that was formed by YG Entertainment.",
+      "retrieved_ids": [
+        "Madtown",
+        "2014 S/S",
+        "List of songs written by Ravi",
+        "Seventeen discography",
+        "SF9 (band)"
+      ],
+      "scores": [
+        0.7647058823529411,
+        0.7058823529411765,
+        0.6470588235294118,
+        0.6470588235294118,
+        0.6470588235294118
+      ]
+    },
+    {
+      "id": "5a85b2d95542997b5ce40028",
+      "predicted": "I don't know. The provided evidence does not mention anyone known by the stage name Aladin.",
+      "retrieved_ids": [
+        "Amaruk Kayshapanta",
+        "Lil Ru",
+        "ELDee",
+        "Method Man",
+        "James P. Comer"
+      ],
+      "scores": [
+        0.5882352941176471,
+        0.5294117647058824,
+        0.5294117647058824,
+        0.5294117647058824,
+        0.47058823529411764
+      ]
+    },
+    {
+      "id": "5a87ab905542996e4f3088c1",
+      "predicted": "The evidence provided does not specify the seating capacity of the arena where the Lewiston Maineiacs played their home games. However, it is mentioned that they played at the Androscoggin Bank Colis\u00e9e, but no specific seating capacity is given for that arena.",
+      "retrieved_ids": [
+        "2006\u201307 QMJHL season",
+        "Dwyer Arena",
+        "Lewiston Maineiacs",
+        "Billings Bulls",
+        "2011\u201312 QMJHL season"
+      ],
+      "scores": [
+        0.42857142857142855,
+        0.42857142857142855,
+        0.42857142857142855,
+        0.42857142857142855,
+        0.42857142857142855
+      ]
+    },
+    {
+      "id": "5a7bbb64554299042af8f7cc",
+      "predicted": "Annie Morton is older than Terry Richardson. According to the provided evidence, Annie Morton was born on October 8, 1970, while Terry Richardson was born on July 26, 1965. Therefore, Annie Morton is 4 years and 2 months older than Terry Richardson.",
+      "retrieved_ids": [
+        "Annie Morton",
+        "Kenton Richardson",
+        "Snoecks",
+        "Index Magazine",
+        "Amanda Lepore"
+      ],
+      "scores": [
+        0.5,
+        0.375,
+        0.25,
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "id": "5a8db19d5542994ba4e3dd00",
+      "predicted": "Yes, both Local H and For Against are from the United States. (Evidence 1 and 2)",
+      "retrieved_ids": [
+        "Suffrajett",
+        "For Against",
+        "United States Senate election in Illinois, 1978",
+        "Ophur",
+        "Wilford H. Fawcett House"
+      ],
+      "scores": [
+        0.5454545454545454,
+        0.5454545454545454,
+        0.45454545454545453,
+        0.45454545454545453,
+        0.45454545454545453
+      ]
+    },
+    {
+      "id": "5a7166395542994082a3e814",
+      "predicted": "I don't know. The provided evidence does not contain information about the fight song of the University of Kansas.",
+      "retrieved_ids": [
+        "University of Kansas",
+        "University of Missouri\u2013Kansas City",
+        "Kansas City Scout",
+        "University of the Incarnate Word",
+        "Kansas City jazz"
+      ],
+      "scores": [
+        0.7142857142857143,
+        0.5714285714285714,
+        0.42857142857142855,
+        0.42857142857142855,
+        0.38095238095238093
+      ]
+    },
+    {
+      "id": "5a877e5d5542993e715abf7d",
+      "predicted": "David Diamond, as he co-wrote the film \"The Family Man\" starring Nicolas Cage and T\u00e9a Leoni.",
+      "retrieved_ids": [
+        "The Family Man",
+        "Deadfall (1993 film)",
+        "Season of the Witch (2011 film)",
+        "Ungod",
+        "City of Angels (film)"
+      ],
+      "scores": [
+        0.5333333333333333,
+        0.5333333333333333,
+        0.5333333333333333,
+        0.5333333333333333,
+        0.4666666666666667
+      ]
+    },
+    {
+      "id": "5ab3b0bf5542992ade7c6e39",
+      "predicted": "1999",
+      "retrieved_ids": [
+        "End of Days (film)",
+        "Get Christie Love!",
+        "Oh My God (Guns N' Roses song)",
+        "Last Action Hero",
+        "Hammerjack's"
+      ],
+      "scores": [
+        0.35,
+        0.3,
+        0.3,
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "id": "5ab56e32554299637185c594",
+      "predicted": "Yes, both the Random House Tower and 888 7th Avenue are used for real estate. The Random House Tower is used as the headquarters of book publisher Random House and a luxury apartment complex, while 888 7th Avenue is an office skyscraper that has been used for various commercial purposes, including housing the corporate headquarters of Vornado Realty Trust.",
+      "retrieved_ids": [
+        "Loan modification in the United States",
+        "Hounsfield Heights/Briar Hill, Calgary",
+        "888 7th Avenue",
+        "Villard (imprint)",
+        "Random House Tower"
+      ],
+      "scores": [
+        0.38461538461538464,
+        0.38461538461538464,
+        0.38461538461538464,
+        0.38461538461538464,
+        0.38461538461538464
+      ]
+    },
+    {
+      "id": "5ab6d09255429954757d337d",
+      "predicted": "Manchester United was managed during the timeframe of 1992 to 2013 by Sir Alex Ferguson, who is the football manager that recruited David Beckham.",
+      "retrieved_ids": [
+        "Alex Ferguson",
+        "Sir Matt Busby Sports Complex",
+        "Ernest Mangnall",
+        "1996 FA Charity Shield",
+        "Matt Busby"
+      ],
+      "scores": [
+        0.5384615384615384,
+        0.5384615384615384,
+        0.5384615384615384,
+        0.5384615384615384,
+        0.46153846153846156
+      ]
+    },
+    {
+      "id": "5a75e05c55429976ec32bc5f",
+      "predicted": "I don't know. The evidence provided does not contain information about the population of the country where Brown State Fishing Lake is located.",
+      "retrieved_ids": [
+        "Commanda Lake",
+        "Higgins Lake",
+        "Brown State Fishing Lake",
+        "Osage State Fishing Lake",
+        "Neosho State Fishing Lake"
+      ],
+      "scores": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "5ab3e45655429976abd1bcd4",
+      "predicted": "The evidence provided does not mention any information about the Vermont Catamounts men's soccer team. Therefore, I don't know the answer to this question.",
+      "retrieved_ids": [
+        "Vermont Catamounts men's basketball",
+        "Vermont Catamounts men's ice hockey",
+        "2013\u201314 Vermont Catamounts men's basketball team",
+        "America East Conference",
+        "2016\u201317 Vermont Catamounts men's basketball team"
+      ],
+      "scores": [
+        0.47619047619047616,
+        0.47619047619047616,
+        0.47619047619047616,
+        0.47619047619047616,
+        0.42857142857142855
+      ]
+    },
+    {
+      "id": "5ab29c24554299449642c932",
+      "predicted": "Yes, based on the provided evidence, both Giuseppe Verdi and Ambroise Thomas are opera composers. Ambroise Thomas is mentioned as the composer of \"Hamlet,\" and Giuseppe Verdi is identified as an Italian opera composer.",
+      "retrieved_ids": [
+        "Ferdinando Provesi",
+        "Teatro Giuseppe Verdi",
+        "Giuseppe Verdi",
+        "Verdi, the King of Melody",
+        "Armand Castelmary"
+      ],
+      "scores": [
+        0.5,
+        0.4,
+        0.3,
+        0.3,
+        0.3
+      ]
+    },
+    {
+      "id": "5ae0d4c9554299603e418468",
+      "predicted": "Roger O. Egeberg served as Assistant Secretary for Health and Scientific Affairs during the Nixon administration, which served from 1969 to 1974.",
+      "retrieved_ids": [
+        "Roger O. Egeberg",
+        "Steven K. Galson",
+        "Douglas J. Bennet",
+        "Robert R. Hood",
+        "Bradford P. Campbell"
+      ],
+      "scores": [
+        0.6190476190476191,
+        0.6190476190476191,
+        0.5714285714285714,
+        0.47619047619047616,
+        0.47619047619047616
+      ]
+    },
+    {
+      "id": "5a8133725542995ce29dcbdb",
+      "predicted": "Robert Erskine Childers was not from England. According to the evidence provided, he was an Irish writer, born in Ireland to American parents. Henry Roth, on the other hand, was a German-Jewish writer who emigrated to the United States.",
+      "retrieved_ids": [
+        "Gretchen Osgood Warren",
+        "Erskine Barton Childers",
+        "Molly Childers",
+        "Irish Bulletin",
+        "Robert Barton"
+      ],
+      "scores": [
+        0.45454545454545453,
+        0.36363636363636365,
+        0.36363636363636365,
+        0.36363636363636365,
+        0.2727272727272727
+      ]
+    },
+    {
+      "id": "5ae7a8175542993210983ed8",
+      "predicted": "I don't know. The provided evidence only mentions Pedro Rodr\u00edguez and Sergio P\u00e9rez as Mexican Formula One drivers who have finished on the podium, but it does not specify any other Mexican Formula One race car driver who has held the podium.",
+      "retrieved_ids": [
+        "2014 Bahrain Grand Prix",
+        "Formula One drivers from Mexico",
+        "Force India VJM04",
+        "Michael James Lewis",
+        "Tony Ave"
+      ],
+      "scores": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.4444444444444444
+      ]
+    },
+    {
+      "id": "5ae6050f55429929b0807a5e",
+      "predicted": "Sterling Holloway, who sang in \"The Rain Rain Rain Came Down Down Down\" from \"Winnie the Pooh and the Blustery Day\", also voiced the hedgehog character Winnie-the-Pooh.",
+      "retrieved_ids": [
+        "The Wonderful Thing About Tiggers",
+        "Winnie the Pooh and the Blustery Day",
+        "Hip Hip Pooh-Ray!",
+        "Little Black Rain Cloud",
+        "The Rain Rain Rain Came Down Down Down"
+      ],
+      "scores": [
+        0.45454545454545453,
+        0.45454545454545453,
+        0.36363636363636365,
+        0.36363636363636365,
+        0.36363636363636365
+      ]
+    },
+    {
+      "id": "5adddccd5542997dc7907069",
+      "predicted": "I don't know. The provided evidence does not mention any other device that can control the program Apple Remote was originally designed to interact with, aside from the Apple Remote itself.",
+      "retrieved_ids": [
+        "Apple Remote",
+        "Trainmaster Command Control",
+        "Universal remote",
+        "Remote control",
+        "Siri Remote"
+      ],
+      "scores": [
+        0.6666666666666666,
+        0.4444444444444444,
+        0.4444444444444444,
+        0.4444444444444444,
+        0.3888888888888889
+      ]
+    },
+    {
+      "id": "5ae2070a5542994d89d5b313",
+      "predicted": "I don't have information about Wolf Alice's instrument to person ratio. However, for Badly Drawn Boy, he wrote, produced, and played several instruments on his debut album \"The Hour of Bewilderbeast\", and also performed the entire soundtrack for the film \"About a Boy\". Therefore, Badly Drawn Boy has a higher instrument to person ratio compared to himself. Without information about Wolf Alice, I can't compare the two.",
+      "retrieved_ids": [
+        "Under an Hour",
+        "Tom Rothrock",
+        "Badly Drawn Boy discography",
+        "About a Boy (soundtrack)",
+        "The Hour of Bewilderbeast"
+      ],
+      "scores": [
+        0.375,
+        0.375,
+        0.375,
+        0.3125,
+        0.3125
+      ]
+    },
+    {
+      "id": "5ae22b8d554299234fd0440f",
+      "predicted": "I don't know. The provided evidence does not contain information about Peter Schmeichel's father being voted by the IFFHS in 1992.",
+      "retrieved_ids": [
+        "Go\u0161tautai",
+        "Pel\u00e9",
+        "Peter Schmeichel",
+        "IFFHS World's Best Club Coach",
+        "Sommeren '92"
+      ],
+      "scores": [
+        0.5,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "5a722b8655429971e9dc9329",
+      "predicted": "Lee Hazlewood wrote \"These Boots Are Made for Walkin'.\" James A. Shoulders died in 2007.",
+      "retrieved_ids": [
+        "Death of Abdul Wali",
+        "The Twenty-fifth Anniversary Anthology",
+        "Jim Shoulders",
+        "These Boots Are Made for Walkin'",
+        "Boots (album)"
+      ],
+      "scores": [
+        0.6,
+        0.6,
+        0.5333333333333333,
+        0.5333333333333333,
+        0.5333333333333333
+      ]
+    },
+    {
+      "id": "5adf37a95542995ec70e8f97",
+      "predicted": "The 2011-12 VCU Rams men's basketball team represented Virginia Commonwealth University, which was founded in 1838. [Source: Implied from the context as it is not explicitly stated in the evidence provided.]",
+      "retrieved_ids": [
+        "2010\u201311 VCU Rams men's basketball team",
+        "2011\u201312 VCU Rams men's basketball team",
+        "2012\u201313 VCU Rams men's basketball team",
+        "2014\u201315 VCU Rams men's basketball team",
+        "2013\u201314 VCU Rams men's basketball team"
+      ],
+      "scores": [
+        0.76,
+        0.72,
+        0.72,
+        0.68,
+        0.68
+      ]
+    },
+    {
+      "id": "5abd259d55429924427fcf1a",
+      "predicted": "Yes, both Dictyosperma and Huernia are described as a genus.",
+      "retrieved_ids": [
+        "Huernia",
+        "Dictyosperma"
+      ],
+      "scores": [
+        0.6666666666666666,
+        0.2222222222222222
+      ]
+    },
+    {
+      "id": "5a828c8355429966c78a6a50",
+      "predicted": "Yes, Kaiser Ventures corporation was founded by the American industrialist who became known as the father of modern American shipbuilding, Henry J. Kaiser.",
+      "retrieved_ids": [
+        "Henry J. Kaiser",
+        "Edgar Kaiser Jr.",
+        "Kaiser Ventures",
+        "Edgar Kaiser Sr.",
+        "Kaiser Shipyards"
+      ],
+      "scores": [
+        0.7777777777777778,
+        0.5,
+        0.4444444444444444,
+        0.4444444444444444,
+        0.3888888888888889
+      ]
+    },
+    {
+      "id": "5a8a3e745542996c9b8d5e70",
+      "predicted": "The evidence does not provide specific information about an adventure in \"Tunnels and Trolls\" designed by Ken St. Andre. However, it is known that \"Tunnels & Trolls\" is a fantasy role-playing game and \"Crank Caverns\" is mentioned as a network of underground tunnels and caverns, but it is not related to a game or adventure. The evidence does not provide any information about adventure modules for \"Tunnels and Trolls\".",
+      "retrieved_ids": [
+        "Mercenaries, Spies and Private Eyes",
+        "Tunnels &amp; Trolls",
+        "Crank Caverns",
+        "Tunnels &amp; Trolls: Crusaders of Khazan",
+        "Starfaring"
+      ],
+      "scores": [
+        0.7058823529411765,
+        0.6470588235294118,
+        0.5882352941176471,
+        0.5882352941176471,
+        0.47058823529411764
+      ]
+    },
+    {
+      "id": "5ac23ff0554299636651994d",
+      "predicted": "Poison's album \"Shut Up, Make Love\" was released on March 14, 2000.",
+      "retrieved_ids": [
+        "Shut Up, Make Love",
+        "Be the One (Poison song)",
+        "Mind If We Make Love to You",
+        "The Longer We Make Love",
+        "Chuck Berry on Stage"
+      ],
+      "scores": [
+        0.6666666666666666,
+        0.6666666666666666,
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ]
+    },
+    {
+      "id": "5ae4a3265542995ad6573de5",
+      "predicted": "Buck-Tick hails from Japan.",
+      "retrieved_ids": [
+        "Mild and Hazy",
+        "Hailstorm Alley",
+        "Hayden (musician)",
+        "Dewey Beard",
+        "Atsushi Sakurai"
+      ],
+      "scores": [
+        0.4166666666666667,
+        0.4166666666666667,
+        0.4166666666666667,
+        0.3333333333333333,
+        0.3333333333333333
+      ]
+    },
+    {
+      "id": "5ae0361155429925eb1afc2c",
+      "predicted": "I don't know. The evidence provided does not mention Charles Nungesser, the French ace pilot who flew L'Oiseau Blanc.",
+      "retrieved_ids": [
+        "Wooster and Davis",
+        "L'Oiseau Blanc",
+        "Paul Sauvage (aviator)",
+        "Gervais Raoul Lufbery",
+        "W. E. Johns"
+      ],
+      "scores": [
+        0.5555555555555556,
+        0.4444444444444444,
+        0.4444444444444444,
+        0.4444444444444444,
+        0.4444444444444444
+      ]
+    },
+    {
+      "id": "5abc0a5d5542993f40c73c64",
+      "predicted": "No, only Freakonomics is an American documentary. In the Realm of the Hackers is an Australian documentary.",
+      "retrieved_ids": [
+        "Robin Goldstein",
+        "In the Realm of the Hackers",
+        "Freakonomics Radio",
+        "Psycho Realm",
+        "Jay Leiderman"
+      ],
+      "scores": [
+        0.5454545454545454,
+        0.5454545454545454,
+        0.5454545454545454,
+        0.5454545454545454,
+        0.5454545454545454
+      ]
+    },
+    {
+      "id": "5a7cc50e554299452d57ba3e",
+      "predicted": "I don't know. The evidence provided does not contain information about the number of members in Letters to Cleo.",
+      "retrieved_ids": [
+        "Jamboree (Beat Happening album)",
+        "Gary Lee Conner",
+        "Screaming Trees discography",
+        "Van Conner",
+        "Letters to Cleo"
+      ],
+      "scores": [
+        0.36363636363636365,
+        0.36363636363636365,
+        0.2727272727272727,
+        0.2727272727272727,
+        0.2727272727272727
+      ]
+    },
+    {
+      "id": "5abf63f15542997ec76fd3ea",
+      "predicted": "The Russian Civil War ended in 1923, but armed national resistance in Central Asia was not completely crushed until 1934. However, the question asks about Alexander Kerensky, specifically, and not the Russian Civil War. The evidence provided states that the anti-Bolshevik faction of the Socialist Revolutionary Party, which included Alexander Kerensky, was defeated and destroyed by the Bolsheviks in the course of the Russian Civil War. Therefore, Alexander Kerensky was defeated and destroyed by the Bolsheviks in the course of the Russian Civil War, but the Russian Civil War did not end until 1923.",
+      "retrieved_ids": [
+        "Socialist Revolutionary Party",
+        "Russian Civil War",
+        "Lavr Kornilov",
+        "Alexander Kerensky",
+        "Left-wing uprisings against the Bolsheviks"
+      ],
+      "scores": [
+        0.7894736842105263,
+        0.6842105263157895,
+        0.5789473684210527,
+        0.5263157894736842,
+        0.5263157894736842
+      ]
+    },
+    {
+      "id": "5a8ef2a75542995a26add583",
+      "predicted": "Carlo Rovelli has worked in France since 2000.",
+      "retrieved_ids": [
+        "Seven Brief Lessons on Physics",
+        "Enrico Fermi",
+        "Claudio Pellegrini",
+        "Aldo Pontremoli",
+        "Carlo Rovelli"
+      ],
+      "scores": [
+        0.5789473684210527,
+        0.47368421052631576,
+        0.42105263157894735,
+        0.3684210526315789,
+        0.3684210526315789
+      ]
+    },
+    {
+      "id": "5a80721b554299485f5985ef",
+      "predicted": "The Livesey Hall War Memorial commemorates the fallen of World War II, which had over 60 million casualties.",
+      "retrieved_ids": [
+        "Livesey Hall War Memorial",
+        "World War II casualties",
+        "Masni\u00e8res Newfoundland Memorial",
+        "Arras Flying Services Memorial",
+        "Vietnam War Memorial, Hanoi"
+      ],
+      "scores": [
+        0.5,
+        0.4375,
+        0.375,
+        0.3125,
+        0.3125
+      ]
+    },
+    {
+      "id": "5ab51dae5542991779162d82",
+      "predicted": "Yes, both Elko Regional Airport and Gerald R. Ford International Airport are located in Michigan.",
+      "retrieved_ids": [
+        "Gerald R. Ford International Airport",
+        "Gerald R. Ford Presidential Library",
+        "Grantley Adams International Airport",
+        "Bishop International Airport",
+        "Raleigh Executive Jetport"
+      ],
+      "scores": [
+        0.5384615384615384,
+        0.46153846153846156,
+        0.46153846153846156,
+        0.46153846153846156,
+        0.46153846153846156
+      ]
+    },
+    {
+      "id": "5a7571135542992d0ec05f98",
+      "predicted": "I don't know. The evidence provided does not specify that Ralph Hefferline was a psychology professor at a university located in any particular city.",
+      "retrieved_ids": [
+        "Mathematically Alive",
+        "Ralph Hefferline",
+        "Stanley Coren",
+        "Princeton Neuroscience Institute",
+        "Kimberly Young"
+      ],
+      "scores": [
+        0.6428571428571429,
+        0.5714285714285714,
+        0.5714285714285714,
+        0.5714285714285714,
+        0.5714285714285714
+      ]
+    },
+    {
+      "id": "5a7a0e1e5542990783324e1a",
+      "predicted": "The Scotch Collie.",
+      "retrieved_ids": [
+        "Scotch Collie",
+        "Viol",
+        "Feist (dog)",
+        "English Setter",
+        "Teddy Roosevelt Terrier"
+      ],
+      "scores": [
+        0.5714285714285714,
+        0.42857142857142855,
+        0.42857142857142855,
+        0.35714285714285715,
+        0.35714285714285715
+      ]
+    },
+    {
+      "id": "5a74106b55429979e288289e",
+      "predicted": "I don't know. The evidence provided does not mention the company's headquarters.",
+      "retrieved_ids": [
+        "William Connolley",
+        "Sachin Warrier",
+        "Wes McKinney",
+        "Alec Muffett",
+        "Muthuchippi Poloru"
+      ],
+      "scores": [
+        0.6428571428571429,
+        0.6428571428571429,
+        0.5714285714285714,
+        0.5714285714285714,
+        0.5
+      ]
+    },
+    {
+      "id": "5a79311755429970f5fffe67",
+      "predicted": "I don't know. The evidence provided does not contain information about the birth year of the author of the manga series featuring Ichitaka Seto.",
+      "retrieved_ids": [
+        "I&quot;s",
+        "The Kindaichi Case Files",
+        "Silver Spoon (manga)",
+        "Clear Skies!",
+        "Neuro: Supernatural Detective"
+      ],
+      "scores": [
+        0.625,
+        0.5833333333333334,
+        0.5833333333333334,
+        0.5833333333333334,
+        0.5833333333333334
+      ]
+    },
+    {
+      "id": "5ab2d3df554299194fa9352c",
+      "predicted": "The Battle of Adwa, in which Giuseppe Arimondi lost his life, secured Ethiopian sovereignty and freedom from colonization.",
+      "retrieved_ids": [
+        "Battle of Adwa",
+        "Giuseppe Arimondi",
+        "First Italo-Ethiopian War",
+        "Outline of Ethiopia",
+        "Herbert S. Lewis"
+      ],
+      "scores": [
+        0.38461538461538464,
+        0.38461538461538464,
+        0.38461538461538464,
+        0.38461538461538464,
+        0.38461538461538464
+      ]
+    },
+    {
+      "id": "5a760ab65542994ccc918697",
+      "predicted": "Alfred Balk served as the secretary of New York Governor Nelson Rockefeller's Committee on the Employment of Minority Groups in the News Media.",
+      "retrieved_ids": [
+        "Alfred Balk",
+        "Gordon Johndroe",
+        "Nelson Rockefeller",
+        "Gore-Chernomyrdin Commission",
+        "Cynthia Hogan"
+      ],
+      "scores": [
+        0.7142857142857143,
+        0.5714285714285714,
+        0.47619047619047616,
+        0.42857142857142855,
+        0.42857142857142855
+      ]
+    },
+    {
+      "id": "5a7d54165542995f4f402256",
+      "predicted": "The medieval fortress in Dirleton, East Lothian, Scotland borders on the south side of the coastal area named Yellowcraigs.",
+      "retrieved_ids": [
+        "Dirleton Castle",
+        "St. Mary's Priory (Lothian)",
+        "Dirleton Kirk",
+        "Yellowcraigs",
+        "Dirleton"
+      ],
+      "scores": [
+        0.5294117647058824,
+        0.47058823529411764,
+        0.47058823529411764,
+        0.47058823529411764,
+        0.47058823529411764
+      ]
+    },
+    {
+      "id": "5ab859a955429934fafe6d7b",
+      "predicted": "I don't know. The provided evidence does not mention the song that was the first track on the box set \"Back to Mono.\" The song in question is \"To Know Him Is to Love Him,\" but it was not part of the \"Back to Mono\" box set.",
+      "retrieved_ids": [
+        "Nashville Rebel (box set)",
+        "Mono Masters",
+        "Trash Box",
+        "To Know Him Is to Love Him",
+        "Chrome, Smoke &amp; BBQ"
+      ],
+      "scores": [
+        0.6521739130434783,
+        0.6086956521739131,
+        0.5652173913043478,
+        0.5652173913043478,
+        0.5652173913043478
+      ]
+    },
+    {
+      "id": "5add61d65542995b365fab21",
+      "predicted": "I don't know. The provided evidence does not contain information about a specific type of forum initiated by a former Soviet statesman.",
+      "retrieved_ids": [
+        "David Waksberg",
+        "Mikhail Gorbachev",
+        "Nikolai Podgorny",
+        "Andrei Kirilenko (politician)",
+        "MS Excelsior Neptune"
+      ],
+      "scores": [
+        0.4,
+        0.4,
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    {
+      "id": "5a8e068b5542995085b37384",
+      "predicted": "Yes, both Ferocactus and Silene are types of plants. Ferocactus is a genus of cacti, while Silene is a genus of flowering plants in the family Caryophyllaceae.",
+      "retrieved_ids": [
+        "Silene menziesii",
+        "Ferocactus",
+        "Silene conoidea",
+        "Silene",
+        "Silene suksdorfii"
+      ],
+      "scores": [
+        0.625,
+        0.5,
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "5abbf698554299114383a0b5",
+      "predicted": "I don't know. The evidence provided does not mention any British first-generation jet-powered medium bomber being used in the South West Pacific theatre of World War II.",
+      "retrieved_ids": [
+        "Edwin A. Doss",
+        "No. 12 Squadron RAAF",
+        "No. 2 Squadron RAAF",
+        "South West Pacific Area (command)",
+        "English Electric Canberra"
+      ],
+      "scores": [
+        0.6111111111111112,
+        0.6111111111111112,
+        0.6111111111111112,
+        0.6111111111111112,
+        0.5
+      ]
+    }
+  ],
+  "timestamp": "2026-04-03 01:42:07"
+}

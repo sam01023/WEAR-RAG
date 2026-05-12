@@ -1,0 +1,32 @@
+# ─── WEAR-RAG Dependencies ───────────────────────────────────
+# Install:  pip install -r requirements.txt
+
+# ── Core Framework ───────────────────────────────────────────
+Flask>=2.3.0
+flask-cors>=4.0.0
+
+# ── ML / NLP ─────────────────────────────────────────────────
+torch>=2.0.0
+sentence-transformers>=2.2.0
+transformers>=4.30.0
+faiss-cpu>=1.7.4
+numpy>=1.24.0
+
+# ── Reranking & Retrieval ────────────────────────────────────
+rank-bm25>=0.2.2
+
+# ── Document Processing ─────────────────────────────────────
+pdfplumber>=0.9.0
+
+# ── HTTP Client (for Ollama API) ─────────────────────────────
+requests>=2.31.0
+httpx>=0.24.0
+
+# ── Evaluation ───────────────────────────────────────────────
+datasets>=2.14.0
+
+# ── Visualization ────────────────────────────────────────────
+matplotlib>=3.7.0
+
+# ── Testing ──────────────────────────────────────────────────
+pytest>=7.4.0

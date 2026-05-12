@@ -1,0 +1,70 @@
+# ──────────────────────────────────────────────────────────────
+# WEAR-RAG .gitignore
+# ──────────────────────────────────────────────────────────────
+
+# ── Python ────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ── Virtual environment ──────────────────────────────────────
+.venv/
+venv/
+ENV/
+
+# ── Model caches (large binaries — do NOT commit) ────────────
+hf_cache/
+hf_cache_run2/
+hf_cache_run3/
+hf_cache_run4/
+local_pkgs/
+local_pkgs_run2/
+local_pkgs_run3/
+local_pkgs_run4/
+
+# ── FAISS index (regenerated at runtime) ─────────────────────
+faiss_index/
+
+# ── Uploads (user data at runtime) ───────────────────────────
+uploads/
+
+# ── IDE / Editor ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── pytest cache ─────────────────────────────────────────────
+.pytest_cache/
+
+# ── LaTeX build artifacts ────────────────────────────────────
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+
+# ── OS artifacts ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Misc temp files ──────────────────────────────────────────
+shell_test.txt
+eval_*.log
+*.trace.log
+debug_import.py
+test_sample.pdf
+scripts/
+
+# ── Internal / non-project files ─────────────────────────────
+RESEARCH PAPER PLAG AND AI TEXT.docx

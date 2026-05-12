@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WEAR-RAG — Weighted Evidence Aggregation for RAG</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg:        #080c12;
+    --surface:   #0d1420;
+    --border:    #1a2535;
+    --cyan:      #00e5c8;
+    --cyan-dim:  #00b89e;
+    --gold:      #f0b429;
+    --red:       #ff4d6d;
+    --text:      #c8d8e8;
+    --text-dim:  #6a7f96;
+    --text-mute: #2e3d52;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --mono:  'JetBrains Mono', monospace;
+    --sans:  'Outfit', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--cyan-dim); border-radius: 2px; }
+
+  /* ── Grid noise overlay ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,200,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,200,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(8,12,18,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--cyan); }
+
+  /* ── Hero ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 120px 48px 80px;
+    overflow: hidden;
+  }
+
+  /* Animated radial glow */
+  .hero::after {
+    content: '';
+    position: absolute;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(0,229,200,0.07) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse 5s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+    50%       { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+  }
+
+  .hero-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    border: 1px solid rgba(0,229,200,0.3);
+    padding: 6px 16px;
+    border-radius: 2px;
+    margin-bottom: 32px;
+    background: rgba(0,229,200,0.05);
+    animation: fadeDown 0.8s ease both;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(3rem, 7vw, 6rem);
+    line-height: 1.05;
+    color: #fff;
+    margin-bottom: 12px;
+    animation: fadeDown 0.8s 0.1s ease both;
+  }
+
+  .hero h1 span {
+    color: var(--cyan);
+    font-style: italic;
+  }
+
+  .hero-subtitle {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    margin-bottom: 40px;
+    animation: fadeDown 0.8s 0.2s ease both;
+  }
+
+  .hero-desc {
+    max-width: 640px;
+    font-size: 16px;
+    color: var(--text);
+    line-height: 1.8;
+    margin-bottom: 48px;
+    animation: fadeDown 0.8s 0.3s ease both;
+  }
+
+  .hero-btns {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    animation: fadeDown 0.8s 0.4s ease both;
+  }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 14px 28px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary {
+    background: var(--cyan);
+    color: var(--bg);
+    font-weight: 700;
+  }
+  .btn-primary:hover { background: #fff; transform: translateY(-2px); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--cyan);
+    border: 1px solid rgba(0,229,200,0.4);
+  }
+  .btn-outline:hover { border-color: var(--cyan); background: rgba(0,229,200,0.05); transform: translateY(-2px); }
+
+  /* ── Hero Stats ── */
+  .hero-stats {
+    display: flex;
+    gap: 0;
+    margin-top: 80px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    animation: fadeDown 0.8s 0.5s ease both;
+  }
+
+  .stat {
+    padding: 24px 40px;
+    border-right: 1px solid var(--border);
+    text-align: center;
+  }
+  .stat:last-child { border-right: none; }
+
+  .stat-val {
+    font-family: var(--serif);
+    font-size: 2.2rem;
+    color: var(--cyan);
+    display: block;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  /* ── Section Base ── */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 100px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: #fff;
+    margin-bottom: 16px;
+    line-height: 1.1;
+  }
+
+  .section-desc {
+    font-size: 15px;
+    color: var(--text-dim);
+    max-width: 580px;
+    line-height: 1.8;
+    margin-bottom: 64px;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0;
+  }
+
+  /* ── Pipeline Section ── */
+  .pipeline-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .pipeline-step {
+    padding: 36px 24px;
+    border-right: 1px solid var(--border);
+    position: relative;
+    transition: background 0.3s;
+    text-align: center;
+  }
+  .pipeline-step:last-child { border-right: none; }
+  .pipeline-step:hover { background: rgba(0,229,200,0.03); }
+
+  .pipeline-step::after {
+    content: '→';
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--cyan);
+    font-family: var(--mono);
+    font-size: 14px;
+    z-index: 2;
+  }
+  .pipeline-step:last-child::after { display: none; }
+
+  .step-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-mute);
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .step-icon {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 16px;
+    filter: grayscale(0.3);
+  }
+
+  .step-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .step-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* ── Formula Card ── */
+  .formula-wrap {
+    margin-top: 48px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 40px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+
+  .formula-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .formula {
+    font-family: var(--mono);
+    font-size: 18px;
+    color: #fff;
+    line-height: 2;
+  }
+
+  .formula .f-score { color: var(--gold); font-weight: 700; }
+  .formula .f-w1   { color: var(--cyan); }
+  .formula .f-w2   { color: #a78bfa; }
+  .formula .f-w3   { color: #fb923c; }
+
+  .formula-weights {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .weight-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .weight-bar-wrap {
+    width: 160px;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .weight-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s ease;
+  }
+
+  .weight-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    width: 100px;
+  }
+
+  .weight-pct {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* ── Results Section ── */
+  .results-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 0;
+  }
+
+  .results-table-wrap {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .results-table-wrap h3 {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  th {
+    text-align: left;
+    padding: 14px 20px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: rgba(13,20,32,0.8);
+  }
+
+  td {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-size: 12px;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .row-wear td { color: var(--cyan); }
+  .row-wear td:first-child { font-weight: 700; }
+
+  .metric-win {
+    color: var(--cyan) !important;
+    font-weight: 700;
+  }
+
+  /* ── Bar Chart Visual ── */
+  .bar-chart {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+    background: var(--surface);
+  }
+
+  .bar-chart h3 {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 28px;
+  }
+
+  .chart-metric {
+    margin-bottom: 24px;
+  }
+
+  .chart-metric-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .chart-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .chart-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .chart-bar-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    width: 80px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .chart-bar-track {
+    flex: 1;
+    height: 16px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .chart-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1.5s cubic-bezier(0.16,1,0.3,1);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 6px;
+  }
+
+  .chart-bar-fill span {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(0,0,0,0.8);
+  }
+
+  /* ── Architecture Cards ── */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 0;
+  }
+
+  .arch-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 32px 28px;
+    transition: border-color 0.3s, transform 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .arch-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--cyan);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+
+  .arch-card:hover { border-color: rgba(0,229,200,0.3); transform: translateY(-4px); }
+  .arch-card:hover::before { transform: scaleX(1); }
+
+  .arch-icon {
+    font-size: 24px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .arch-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .arch-model {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--gold);
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  .arch-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  /* ── Systems Section ── */
+  .systems-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .system-card {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .system-header {
+    padding: 20px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .system-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+
+  .system-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .system-features {
+    padding: 20px 24px;
+    list-style: none;
+  }
+
+  .system-features li {
+    font-size: 12px;
+    color: var(--text-dim);
+    padding: 5px 0;
+    padding-left: 16px;
+    position: relative;
+    font-family: var(--mono);
+  }
+
+  .system-features li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: var(--text-mute);
+  }
+
+  .system-card.featured { border-color: rgba(0,229,200,0.4); }
+  .system-card.featured .system-header { background: rgba(0,229,200,0.05); }
+  .system-card.featured .system-name { color: var(--cyan); }
+  .system-card.featured .system-features li::before { color: var(--cyan); }
+  .system-card.featured .system-features li { color: var(--text); }
+
+  /* ── Dataset Section ── */
+  .dataset-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  .dataset-info { }
+
+  .dataset-info p {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.9;
+    margin-bottom: 24px;
+  }
+
+  .dataset-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .ds-stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+  }
+
+  .ds-stat-val {
+    font-family: var(--serif);
+    font-size: 1.8rem;
+    color: var(--cyan);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .ds-stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .sample-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .sample-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--cyan);
+    text-transform: uppercase;
+  }
+
+  .sample-body {
+    padding: 20px;
+  }
+
+  .sample-q {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sample-q strong {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .sample-answer {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gold);
+  }
+
+  .sample-answer strong {
+    font-size: 10px;
+    color: var(--text-dim);
+    display: block;
+    margin-bottom: 4px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: var(--mono);
+  }
+
+  /* ── Footer ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .footer-brand {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--cyan);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  .footer-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .footer-meta span { color: var(--text-mute); margin: 0 8px; }
+
+  /* ── Animations on scroll ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    section { padding: 72px 24px; }
+    .pipeline-grid { grid-template-columns: 1fr 1fr; }
+    .results-wrap { grid-template-columns: 1fr; }
+    .arch-grid { grid-template-columns: 1fr 1fr; }
+    .systems-grid { grid-template-columns: 1fr; }
+    .dataset-wrap { grid-template-columns: 1fr; }
+    .hero-stats { flex-wrap: wrap; }
+    .formula-wrap { flex-direction: column; }
+    footer { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav>
+  <div class="nav-logo">WEAR-RAG</div>
+  <ul class="nav-links">
+    <li><a href="#pipeline">Pipeline</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#dataset">Dataset</a></li>
+    <li><a href="#systems">Systems</a></li>
+  </ul>
+</nav>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="hero-badge">Research Project · NLP · HotpotQA</div>
+
+  <h1>WEAR-<span>RAG</span></h1>
+  <p class="hero-subtitle">Weighted Evidence Aggregation for Retrieval-Augmented Generation</p>
+  <p class="hero-desc">
+    A novel three-stage RAG pipeline that combines semantic chunking, cross-encoder reranking,
+    and composite evidence scoring to outperform standard retrieval-augmented generation systems
+    on multi-hop question answering.
+  </p>
+  <div class="hero-btns">
+    <a href="#pipeline" class="btn btn-primary">Explore Pipeline</a>
+    <a href="#results" class="btn btn-outline">View Results</a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-val">+60%</span>
+      <span class="stat-label">F1 over Baseline</span>
+    </div>
+    <div class="stat">
+      <span class="stat-val">+85%</span>
+      <span class="stat-label">BLEU-1 Gain</span>
+    </div>
+    <div class="stat">
+      <span class="stat-val">+12%</span>
+      <span class="stat-label">Retrieval Precision</span>
+    </div>
+    <div class="stat">
+      <span class="stat-val">6</span>
+      <span class="stat-label">Evaluation Metrics</span>
+    </div>
+    <div class="stat">
+      <span class="stat-val">3</span>
+      <span class="stat-label">Pipeline Systems</span>
+    </div>
+  </div>
+</div>
+
+<hr class="divider" />
+
+<!-- ── Pipeline ── -->
+<section id="pipeline">
+  <span class="section-tag">How it works</span>
+  <h2 class="section-title">The WEAR-RAG Pipeline</h2>
+  <p class="section-desc">
+    Five sequential stages transform a raw question and a set of documents into a high-quality,
+    evidence-grounded answer. Each stage is designed to reduce noise and increase precision.
+  </p>
+
+  <div class="pipeline-grid reveal">
+    <div class="pipeline-step">
+      <span class="step-num">01</span>
+      <span class="step-icon">✂️</span>
+      <div class="step-name">Semantic Chunking</div>
+      <p class="step-desc">Documents split by cosine similarity between adjacent sentence embeddings — preserving semantic coherence.</p>
+    </div>
+    <div class="pipeline-step">
+      <span class="step-num">02</span>
+      <span class="step-icon">🔍</span>
+      <div class="step-name">Query Decomposition</div>
+      <p class="step-desc">Complex multi-hop questions broken into targeted sub-queries to improve retrieval coverage.</p>
+    </div>
+    <div class="pipeline-step">
+      <span class="step-num">03</span>
+      <span class="step-icon">📦</span>
+      <div class="step-name">FAISS Retrieval</div>
+      <p class="step-desc">Dense vector search using BAAI/bge-small-en embeddings. Top-20 candidates per sub-query retrieved.</p>
+    </div>
+    <div class="pipeline-step">
+      <span class="step-num">04</span>
+      <span class="step-icon">⚖️</span>
+      <div class="step-name">Cross-Encoder Rerank</div>
+      <p class="step-desc">BAAI/bge-reranker-base scores each candidate for precise query-document relevance.</p>
+    </div>
+    <div class="pipeline-step">
+      <span class="step-num">05</span>
+      <span class="step-icon">🧠</span>
+      <div class="step-name">LLM Generation</div>
+      <p class="step-desc">Mistral 7B generates the final answer from aggregated, noise-filtered evidence context.</p>
+    </div>
+  </div>
+
+  <div class="formula-wrap reveal">
+    <div>
+      <div class="formula-label">Core Contribution — Evidence Score Formula</div>
+      <div class="formula">
+        <span class="f-score">EvidenceScore</span> =<br />
+        &nbsp;&nbsp;<span class="f-w1">0.5</span> × similarity_score<br />
+        + <span class="f-w2">0.4</span> × reranker_score<br />
+        + <span class="f-w3">0.1</span> × information_density
+      </div>
+    </div>
+    <div class="formula-weights">
+      <div class="weight-row">
+        <span class="weight-name" style="color:#00e5c8">Similarity</span>
+        <div class="weight-bar-wrap">
+          <div class="weight-bar" style="width:50%;background:#00e5c8;"></div>
+        </div>
+        <span class="weight-pct" style="color:#00e5c8">50%</span>
+      </div>
+      <div class="weight-row">
+        <span class="weight-name" style="color:#a78bfa">Reranker</span>
+        <div class="weight-bar-wrap">
+          <div class="weight-bar" style="width:40%;background:#a78bfa;"></div>
+        </div>
+        <span class="weight-pct" style="color:#a78bfa">40%</span>
+      </div>
+      <div class="weight-row">
+        <span class="weight-name" style="color:#fb923c">Density</span>
+        <div class="weight-bar-wrap">
+          <div class="weight-bar" style="width:10%;background:#fb923c;"></div>
+        </div>
+        <span class="weight-pct" style="color:#fb923c">10%</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── Results ── -->
+<section id="results">
+  <span class="section-tag">Experimental Results</span>
+  <h2 class="section-title">WEAR-RAG vs Baselines</h2>
+  <p class="section-desc">
+    Evaluated on 10 HotpotQA distractor-setting questions using Mistral 7B as the generator.
+    WEAR-RAG consistently outperforms on every generation quality metric.
+  </p>
+
+  <div class="results-wrap reveal">
+    <div class="results-table-wrap">
+      <h3>Full Metrics Table</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>System</th>
+            <th>F1</th>
+            <th>ROUGE-L</th>
+            <th>BLEU-1</th>
+            <th>MRR</th>
+            <th>RetPrec</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Baseline RAG</td>
+            <td>0.132</td>
+            <td>0.132</td>
+            <td>0.077</td>
+            <td>1.000</td>
+            <td>0.340</td>
+          </tr>
+          <tr>
+            <td>Improved RAG</td>
+            <td>0.120</td>
+            <td>0.120</td>
+            <td>0.070</td>
+            <td>1.000</td>
+            <td>0.340</td>
+          </tr>
+          <tr class="row-wear">
+            <td>⭐ WEAR-RAG</td>
+            <td class="metric-win">0.212</td>
+            <td class="metric-win">0.212</td>
+            <td class="metric-win">0.142</td>
+            <td>1.000</td>
+            <td class="metric-win">0.380</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bar-chart">
+      <h3>Visual Comparison</h3>
+
+      <div class="chart-metric">
+        <div class="chart-metric-label">Token F1 Score</div>
+        <div class="chart-bars">
+          <div class="chart-bar-row">
+            <span class="chart-bar-label">Baseline</span>
+            <div class="chart-bar-track">
+              <div class="chart-bar-fill" style="width:62%;background:rgba(100,120,150,0.6)">
+                <span>0.132</span>
+              </div>
+            </div>
+          </div>
+          <div class="chart-bar-row">
+            <span class="chart-bar-label">Improved</span>
+            <div class="chart-bar-track">
+              <div class="chart-bar-fill" style="width:57%;background:rgba(100,120,150,0.6)">
+                <span>0.120</span>
+              </div>
+            </div>
+          </div>
+          <div class="chart-bar-row">
+            <span class="chart-bar-label">WEAR-RAG</span>
+            <div class="chart-bar-track">
+              <div class="chart-bar-fill" style="width:100%;background:linear-gradient(90deg,#00b89e,#00e5c8)">
+                <span>0.212</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-metric">
+        <div class="chart-metric-label">BLEU-1 Score</div>
+        <div class="chart-bars">
+          <div class="chart-bar-row">
+            <span class="chart-bar-label">Baseline</span>
+            <div class="chart-bar-track">
+              <div class="chart-bar-fill" style="width:54%;background:rgba(100,120,150,0.6)">
+                <span>0.077</span>
+              </div>
+            </div>
+          </div>
+          <div class="chart-bar-row">
+            <span class="chart-bar-label">Improved</span>
+            <div class="chart-bar-track">
+              <div class="chart-bar-fill" style="width:49%;background:rgba(100,120,150,0.6)">
+                <span>0.070</span>
+              </div>
+            </div>
+          </div>
+          <div class="chart-bar-row">
+            <span class="chart-bar-label">WEAR-RAG</span>
+            <div class="chart-bar-track">
+              <div class="chart-bar-fill" style="width:100%;background:linear-gradient(90deg,#00b89e,#00e5c8)">
+                <span>0.142</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-metric">
+        <div class="chart-metric-label">Retrieval Precision</div>
+        <div class="chart-bars">
+          <div class="chart-bar-row">
+            <span class="chart-bar-label">Baseline</span>
+            <div class="chart-bar-track">
+              <div class="chart-bar-fill" style="width:89%;background:rgba(100,120,150,0.6)">
+                <span>0.340</span>
+              </div>
+            </div>
+          </div>
+          <div class="chart-bar-row">
+            <span class="chart-bar-label">Improved</span>
+            <div class="chart-bar-track">
+              <div class="chart-bar-fill" style="width:89%;background:rgba(100,120,150,0.6)">
+                <span>0.340</span>
+              </div>
+            </div>
+          </div>
+          <div class="chart-bar-row">
+            <span class="chart-bar-label">WEAR-RAG</span>
+            <div class="chart-bar-track">
+              <div class="chart-bar-fill" style="width:100%;background:linear-gradient(90deg,#00b89e,#00e5c8)">
+                <span>0.380</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── Architecture ── -->
+<section id="architecture">
+  <span class="section-tag">Components</span>
+  <h2 class="section-title">Model Architecture</h2>
+  <p class="section-desc">
+    WEAR-RAG uses three pre-trained models orchestrated by the weighted aggregation pipeline.
+    No model training required — the innovation is in how evidence is ranked and selected.
+  </p>
+
+  <div class="arch-grid reveal">
+    <div class="arch-card">
+      <span class="arch-icon">🔷</span>
+      <div class="arch-name">Embedding Engine</div>
+      <div class="arch-model">BAAI/bge-small-en</div>
+      <p class="arch-desc">384-dimensional dense embeddings for semantic similarity. Uses BGE-specific query and passage instruction prefixes for improved retrieval accuracy.</p>
+    </div>
+    <div class="arch-card">
+      <span class="arch-icon">🎯</span>
+      <div class="arch-name">Cross-Encoder Reranker</div>
+      <div class="arch-model">BAAI/bge-reranker-base</div>
+      <p class="arch-desc">XLM-RoBERTa based sequence classifier that scores query-document relevance jointly. Significantly more accurate than bi-encoder similarity alone.</p>
+    </div>
+    <div class="arch-card">
+      <span class="arch-icon">💬</span>
+      <div class="arch-name">LLM Generator</div>
+      <div class="arch-model">Mistral 7B via Ollama</div>
+      <p class="arch-desc">7-billion parameter instruction-tuned model served locally via Ollama. Generates final answers from the weighted evidence context window.</p>
+    </div>
+    <div class="arch-card">
+      <span class="arch-icon">📐</span>
+      <div class="arch-name">Document Processor</div>
+      <div class="arch-model">Semantic Chunker</div>
+      <p class="arch-desc">Splits documents into semantically coherent chunks by detecting cosine similarity drops between adjacent sentence embeddings.</p>
+    </div>
+    <div class="arch-card">
+      <span class="arch-icon">🗂️</span>
+      <div class="arch-name">Vector Store</div>
+      <div class="arch-model">FAISS IndexFlatIP</div>
+      <p class="arch-desc">Facebook AI Similarity Search with inner product indexing. Supports AVX2 acceleration. Handles ingestion, retrieval, save, and load operations.</p>
+    </div>
+    <div class="arch-card">
+      <span class="arch-icon">🔗</span>
+      <div class="arch-name">Query Decomposer</div>
+      <div class="arch-model">Rule-based + LLM fallback</div>
+      <p class="arch-desc">Breaks multi-hop questions into targeted sub-queries using rule-based patterns first, with an optional LLM-powered fallback for complex queries.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── Dataset ── -->
+<section id="dataset">
+  <span class="section-tag">Benchmark</span>
+  <h2 class="section-title">HotpotQA Dataset</h2>
+
+  <div class="dataset-wrap reveal">
+    <div class="dataset-info">
+      <p>
+        HotpotQA is a large-scale multi-hop question answering dataset requiring reasoning
+        across two or more Wikipedia paragraphs. We use the <strong style="color:var(--cyan)">distractor setting</strong>,
+        where each question is paired with 10 documents — 2 gold supporting docs and 8 distractors.
+      </p>
+      <p>
+        This setting directly tests retrieval quality: the system must identify the 2 relevant
+        documents among 8 noise documents before generating an answer.
+      </p>
+
+      <div class="dataset-stats">
+        <div class="ds-stat">
+          <span class="ds-stat-val">113K</span>
+          <span class="ds-stat-label">Total Questions</span>
+        </div>
+        <div class="ds-stat">
+          <span class="ds-stat-val">10</span>
+          <span class="ds-stat-label">Docs per Question</span>
+        </div>
+        <div class="ds-stat">
+          <span class="ds-stat-val">2-hop</span>
+          <span class="ds-stat-label">Reasoning Type</span>
+        </div>
+        <div class="ds-stat">
+          <span class="ds-stat-val">Valid</span>
+          <span class="ds-stat-label">Split Used</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sample-card">
+        <div class="sample-header">Sample HotpotQA Question</div>
+        <div class="sample-body">
+          <div class="sample-q">
+            <strong>Question</strong>
+            Were Scott Derrickson and Ed Wood of the same nationality?
+          </div>
+          <div class="sample-q">
+            <strong>Supporting Docs Required</strong>
+            Scott Derrickson (American director) · Ed Wood (American director)
+          </div>
+          <div class="sample-answer">
+            <strong>Gold Answer</strong>
+            yes
+          </div>
+        </div>
+      </div>
+
+      <div class="sample-card" style="margin-top:16px;">
+        <div class="sample-header">Another Example</div>
+        <div class="sample-body">
+          <div class="sample-q">
+            <strong>Question</strong>
+            Who is older, Annie Morton or Terry Richardson?
+          </div>
+          <div class="sample-q">
+            <strong>Multi-hop reasoning needed</strong>
+            Must retrieve birth years of both people from separate documents
+          </div>
+          <div class="sample-answer">
+            <strong>Gold Answer</strong>
+            Terry Richardson
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── Systems Comparison ── -->
+<section id="systems">
+  <span class="section-tag">Ablation</span>
+  <h2 class="section-title">Three Pipeline Systems</h2>
+  <p class="section-desc">
+    We compare three progressively enhanced systems to isolate the contribution of each component.
+  </p>
+
+  <div class="systems-grid reveal">
+    <div class="system-card">
+      <div class="system-header">
+        <div class="system-name">Baseline RAG</div>
+        <div class="system-tag">Standard Pipeline</div>
+      </div>
+      <ul class="system-features">
+        <li>Fixed-size character chunking</li>
+        <li>Single query retrieval</li>
+        <li>No reranking</li>
+        <li>All chunks treated equally</li>
+        <li>FAISS + Mistral 7B</li>
+      </ul>
+    </div>
+
+    <div class="system-card">
+      <div class="system-header">
+        <div class="system-name">Improved RAG</div>
+        <div class="system-tag">+ Semantic Chunking + Decomposition</div>
+      </div>
+      <ul class="system-features">
+        <li>Semantic chunking (cosine similarity)</li>
+        <li>Rule-based query decomposition</li>
+        <li>Diversity-aware context selection</li>
+        <li>No cross-encoder reranking</li>
+        <li>FAISS + Mistral 7B</li>
+      </ul>
+    </div>
+
+    <div class="system-card featured">
+      <div class="system-header">
+        <div class="system-name">⭐ WEAR-RAG</div>
+        <div class="system-tag">Full Pipeline — Best Results</div>
+      </div>
+      <ul class="system-features">
+        <li>Semantic chunking</li>
+        <li>Query decomposition</li>
+        <li>Cross-encoder reranking (BGE)</li>
+        <li>Weighted evidence aggregation</li>
+        <li>Token budget-aware context trimming</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="footer-brand">WEAR-RAG</div>
+  <div class="footer-meta">
+    HotpotQA · Mistral 7B · BAAI/bge-small-en · FAISS
+    <span>·</span>
+    Evaluated on 10 samples, validation split
+  </div>
+  <div class="footer-meta">
+    Major Project · NLP Research
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Animate bars on scroll
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.chart-bar-fill').forEach(bar => {
+          const target = bar.style.width;
+          bar.style.width = '0';
+          requestAnimationFrame(() => {
+            setTimeout(() => { bar.style.width = target; }, 100);
+          });
+        });
+        barObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.bar-chart').forEach(el => barObserver.observe(el));
+</script>
+</body>
+</html>

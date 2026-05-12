@@ -1,0 +1,532 @@
+\documentclass[10pt,draftclsnofoot,onecolumn,journal]{IEEEtran}
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{url}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+
+\title{WEAR-RAG: Weighted Evidence Aggregation for Multi-Hop Retrieval-Augmented Generation}
+
+\author{First~Author,~\IEEEmembership{Student Member,~IEEE,}
+        Second~Author,~\IEEEmembership{Member,~IEEE,}
+        and~Third~Author,~\IEEEmembership{Senior Member,~IEEE}%
+\thanks{Manuscript prepared on April 1, 2026.}%
+\thanks{The authors are with the Department of Computer Science, Your Institute, Your City, India (e-mail: author1@institute.edu).}%
+}
+
+\markboth{Journal Draft, 2026}{WEAR-RAG: Weighted Evidence Aggregation for Multi-Hop RAG}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Retrieval-Augmented Generation (RAG) has become a practical way to ground large language model outputs in external evidence, yet many implementations still suffer from a familiar issue: retrieved context is not always equally useful, and weak passages can quietly dominate generation quality. This paper presents WEAR-RAG, a modular architecture that improves evidence quality before generation by combining semantic chunking, question decomposition, cross-encoder reranking, and weighted evidence aggregation. The key design choice is simple but effective: instead of forwarding top-$k$ chunks as if they were equally trustworthy, WEAR-RAG computes a composite evidence score for each chunk using dense retrieval similarity, cross-encoder relevance, and information density. Chunks below a quality threshold are filtered, and only high-value evidence is passed to the language model.
+
+We evaluate WEAR-RAG on 100 samples from HotpotQA (distractor validation split) against a baseline RAG system implemented in the same project. WEAR-RAG improves Exact Match from 0.0700 to 0.0800, token-level F1 from 0.2136 to 0.2339, ROUGE-L from 0.2123 to 0.2330, BLEU-1 from 0.1582 to 0.1733, and retrieval precision from 0.3480 to 0.3960, while preserving nearly identical Mean Reciprocal Rank (MRR). Beyond quantitative gains, the project provides reproducible tooling: a unified evaluator, visual diagnostics, unit tests, and a Flask-based interactive web interface with both production and lightweight mock modes.
+
+The findings suggest that better evidence selection, not just better retrieval, is a meaningful lever for practical RAG quality in multi-hop question answering.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Retrieval-Augmented Generation, Multi-hop Question Answering, Evidence Aggregation, Reranking, HotpotQA, Explainable Retrieval.
+\end{IEEEkeywords}
+
+\section{Introduction}
+Large language models (LLMs) are remarkably strong at synthesis and fluent response generation, but fluency can hide factual fragility. In applied settings such as educational assistants, enterprise search copilots, legal document QA, and scientific summarization, confidence without grounding is expensive. Retrieval-Augmented Generation (RAG) has emerged as a practical compromise: keep generation power, but condition it on retrieved passages from a corpus \cite{lewis2020rag}. In production, however, the quality bottleneck often moves from generation to context selection.
+
+A common RAG pattern retrieves top-$k$ chunks using dense embeddings and forwards them to the generator. This design is computationally attractive but semantically brittle for multi-hop tasks: some chunks are highly relevant, some are adjacent but noisy, and some are only weakly connected. Treating all retrieved chunks as equally reliable creates avoidable failure modes. The model may over-attend to low-signal passages, underuse key evidence, or produce diluted answers that are directionally correct but incomplete.
+
+This paper presents WEAR-RAG (Weighted Evidence Aggregation for RAG), a system designed around one guiding principle: context should be curated by evidence value, not by retrieval rank alone. WEAR-RAG integrates four components:
+\begin{enumerate}
+\item Semantic chunking to preserve topic coherence within chunks.
+\item Query decomposition to better support multi-hop questions.
+\item Cross-encoder reranking for pairwise relevance refinement.
+\item Weighted evidence aggregation to score, filter, and order context.
+\end{enumerate}
+
+The architecture is implemented end-to-end in Python and includes evaluation, visualization, and a web interface. We intentionally keep the design modular to support ablations and practical deployment.
+
+\subsection{Motivation from Engineering Practice}
+The project was developed with a practical target: make a RAG system that can run locally, expose understandable evidence traces, and be tested quickly. During early iterations, we observed a repeated pattern: retrieval would often include one or two very strong passages mixed with multiple weak passages. If all were passed to the generator unchanged, answer quality became unstable. This motivated explicit evidence scoring and thresholding as first-class pipeline stages rather than post-hoc diagnostics.
+
+\subsection{Contributions}
+This work makes the following contributions:
+\begin{enumerate}
+\item \textbf{WEAR-RAG architecture:} A complete, modular retrieval-to-generation pipeline with weighted evidence curation.
+\item \textbf{Composite evidence scoring:} A practical scoring function that combines dense similarity, cross-encoder relevance, and information density.
+\item \textbf{Reproducible implementation:} Shared model registry, deterministic mock mode, evaluator, unit tests, and web endpoints.
+\item \textbf{Empirical findings:} On HotpotQA-100, WEAR-RAG improves answer and retrieval quality over baseline RAG.
+\end{enumerate}
+
+\section{Related Work}
+\subsection{Retrieval-Augmented Generation}
+RAG frameworks couple a retriever with a generator to reduce hallucination and increase controllability \cite{lewis2020rag,guu2020realm}. Dense Passage Retrieval (DPR) and similar bi-encoder retrievers scale well but encode query and passage independently \cite{karpukhin2020dpr}. This tradeoff supports speed but can miss subtle interactions that matter in hard multi-hop questions.
+
+\subsection{Cross-Encoder Reranking}
+Cross-encoders jointly process query-passage pairs and typically improve ranking quality at higher inference cost. Practical systems frequently use two-stage retrieval: bi-encoder for candidate recall, cross-encoder for precision \cite{nogueira2019passage}. WEAR-RAG follows this pattern but extends it with explicit evidence aggregation rather than selecting reranked top-$k$ blindly.
+
+\subsection{Multi-Hop QA and Decomposition}
+HotpotQA \cite{yang2018hotpotqa} highlights the need for compositional reasoning over multiple supporting facts. Question decomposition has been explored as a way to break complex queries into answerable components, improving retrieval coverage in downstream reasoning systems. WEAR-RAG adopts this idea using a rule-based decomposer by default and supports LLM-based decomposition as an optional extension.
+
+\subsection{Evidence Selection and Grounded Generation}
+A recurring challenge in grounded generation is relevance concentration: not every retrieved chunk deserves prompt budget. Prior work has explored confidence-aware selection, citation-grounded prompting, and reranking-based compression. WEAR-RAG contributes a compact, interpretable scoring function oriented toward implementability in constrained local settings.
+
+\section{Methodology}
+\subsection{Problem Definition}
+Given a question $q$ and document set $D = \{d_1, d_2, ..., d_n\}$, predict answer $a$ using evidence set $E \subseteq D$. The objective is to maximize answer quality while minimizing irrelevant context.
+
+\subsection{Pipeline Overview}
+WEAR-RAG executes the following stages:
+\begin{enumerate}
+\item \textbf{Chunking:} Split each document into semantically coherent chunks.
+\item \textbf{Decomposition:} Convert $q$ into sub-queries $Q = \{q_1, ..., q_m\}$ with $q \in Q$.
+\item \textbf{Dense retrieval:} Retrieve candidate chunks per sub-query from FAISS.
+\item \textbf{Reranking:} Re-score query-chunk pairs using a cross-encoder.
+\item \textbf{Aggregation:} Compute weighted evidence scores, filter, and rank.
+\item \textbf{Generation:} Build grounded prompt and generate answer with Ollama/Mistral.
+\end{enumerate}
+
+\subsection{Semantic Chunking}
+Each document is sentence-tokenized and embedded sentence-wise. Chunk boundaries are introduced when adjacent sentence similarity falls below threshold $\tau$ or when chunk size exceeds a maximum budget.
+
+Let sentence embeddings be $s_i$. Adjacent similarity is
+\begin{equation}
+\text{sim}(i,i+1) = \frac{s_i^\top s_{i+1}}{\|s_i\|\|s_{i+1}\|}.
+\end{equation}
+A new chunk starts when $\text{sim}(i,i+1) < \tau$ subject to minimum chunk size constraints.
+
+\subsection{Query Decomposition}
+The default decomposer applies lightweight heuristics for comparison, causal, and compound patterns. It always includes the original question to preserve intent. For comparative questions such as "Why is A better than B?", additional sub-queries target definitions, strengths, and limitations separately.
+
+\subsection{Two-Stage Retrieval}
+\textbf{Stage 1: Dense retrieval.} Candidate chunks are retrieved with BAAI/bge-small-en embeddings from a FAISS IndexFlatIP index over normalized vectors.
+
+\textbf{Stage 2: Cross-encoder reranking.} Candidate pairs $(q_i, c_j)$ are reranked with BAAI/bge-reranker-base. Raw logits are mapped via sigmoid to obtain interpretable relevance scores in $[0,1]$.
+
+\subsection{Weighted Evidence Aggregation}
+This is the core WEAR-RAG contribution. For each candidate chunk $c$, define
+\begin{equation}
+S(c) = w_{sim}S_{sim}(c) + w_{rank}S_{rank}(c) + w_{dens}S_{dens}(c).
+\label{eq:evidence}
+\end{equation}
+
+where:
+\begin{itemize}
+\item $S_{sim}$ is dense retrieval similarity,
+\item $S_{rank}$ is cross-encoder relevance,
+\item $S_{dens}$ estimates information density,
+\item $w_{sim}+w_{rank}+w_{dens}=1$.
+\end{itemize}
+
+Default settings are $w_{sim}=0.5$, $w_{rank}=0.4$, $w_{dens}=0.1$. Chunks are retained only if $S(c) \geq \theta$ with threshold $\theta=0.3$. Remaining chunks are sorted and optionally truncated by token budget.
+
+\subsection{Information Density Heuristic}
+$S_{dens}$ is a bounded heuristic combining normalized chunk length, type-token diversity, and a lightweight named-entity/technical-term proxy. While simple, it rewards richer chunks and helps de-prioritize very short or repetitive text.
+
+\subsection{Generation Policy}
+The generation prompt contains labeled evidence blocks and strict instructions to answer only from provided evidence. If evidence is inadequate, the model is instructed to output "I don't know." This policy limits unsupported synthesis and improves user trust.
+
+\section{System Design and Implementation}
+\subsection{Module Architecture}
+The implementation is organized into independent modules:
+\begin{itemize}
+\item \textit{document\_processor.py}: semantic chunking.
+\item \textit{embeddings.py}: passage/query embedding logic.
+\item \textit{vector\_store.py}: FAISS indexing and retrieval.
+\item \textit{query\_decomposer.py}: rule-based and optional LLM decomposition.
+\item \textit{reranker.py}: cross-encoder reranking.
+\item \textit{evidence\_aggregator.py}: scoring, filtering, budget trimming.
+\item \textit{llm\_generator.py}: Ollama and mock generators.
+\item \textit{evaluator.py}: metrics and CSV output.
+\item \textit{visualizer.py}: charts and score visual diagnostics.
+\end{itemize}
+
+\subsection{Shared Model Registry}
+To avoid repeated model loading across experiments, WEAR-RAG uses a model registry that initializes embedding and reranking models once and reuses them across systems. This significantly reduces repeated initialization overhead and stabilizes evaluation runtime.
+
+\subsection{Baseline and Improved Pipelines}
+The codebase includes:
+\begin{itemize}
+\item \textbf{Baseline RAG}: fixed chunking, single retrieval, no reranker.
+\item \textbf{Improved RAG}: decomposition-aware diversity retrieval.
+\item \textbf{WEAR-RAG}: full pipeline with reranking and weighted aggregation.
+\end{itemize}
+
+The paper benchmarks Baseline RAG and WEAR-RAG to isolate end-to-end impact.
+
+\subsection{Web Application Layer}
+A Flask application provides endpoints for health checks, question answering, and file upload (.txt/.pdf). The interface supports both production inference and mock mode for low-resource demonstrations. This deployment layer was useful for human-in-the-loop error analysis and qualitative inspection of evidence rankings.
+
+\section{Experimental Setup}
+\subsection{Dataset}
+Experiments use the HotpotQA distractor validation split \cite{yang2018hotpotqa}. We evaluate on 100 samples to balance reproducibility and local compute constraints.
+
+\subsection{Metrics}
+We report six metrics:
+\begin{enumerate}
+\item Exact Match (EM)
+\item Token-level F1
+\item ROUGE-L
+\item BLEU-1
+\item Mean Reciprocal Rank (MRR)
+\item Retrieval Precision
+\end{enumerate}
+
+\subsection{Model and Hyperparameter Settings}
+\begin{itemize}
+\item Embedding model: BAAI/bge-small-en
+\item Reranker model: BAAI/bge-reranker-base
+\item Generator: Ollama Mistral (or mock mode)
+\item Retrieval: top\_k\_retrieval = 20
+\item Reranked keep: top\_k\_rerank = 5
+\item Aggregation threshold: 0.3
+\item LLM context window: 4096
+\end{itemize}
+
+\subsection{Reproducible Commands}
+Typical run command:
+\begin{equation}
+\texttt{python main.py --mode evaluate --samples 100}
+\end{equation}
+Mock run (no Ollama dependency):
+\begin{equation}
+\texttt{python main.py --mode evaluate --samples 100 --mock}
+\end{equation}
+
+\section{Results}
+\subsection{Main Comparison}
+Table~\ref{tab:main-results} summarizes results from project-generated CSV files.
+
+\begin{table*}[t]
+\centering
+\caption{Performance on HotpotQA (100 samples)}
+\label{tab:main-results}
+\begin{tabular}{lcccccc}
+\toprule
+System & EM & F1 & ROUGE-L & BLEU-1 & MRR & Retrieval Precision \\
+\midrule
+Baseline RAG & 0.0700 & 0.2136 & 0.2123 & 0.1582 & 0.9558 & 0.3480 \\
+WEAR-RAG & \textbf{0.0800} & \textbf{0.2339} & \textbf{0.2330} & \textbf{0.1733} & 0.9550 & \textbf{0.3960} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Delta Analysis}
+\begin{table}[h]
+\centering
+\caption{Absolute and Relative Gains of WEAR-RAG over Baseline}
+\label{tab:delta}
+\begin{tabular}{lcc}
+\toprule
+Metric & Absolute Delta & Relative Delta \\
+\midrule
+EM & +0.0100 & +14.29\% \\
+F1 & +0.0203 & +9.50\% \\
+ROUGE-L & +0.0207 & +9.75\% \\
+BLEU-1 & +0.0151 & +9.54\% \\
+MRR & -0.0008 & -0.08\% \\
+Retrieval Precision & +0.0480 & +13.79\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The nearly unchanged MRR with improved retrieval precision is informative: both systems often surface at least one relevant item early, but WEAR-RAG better curates the final evidence set that drives generation quality.
+
+\subsection{Qualitative Observations}
+In manual inspections, WEAR-RAG answers were generally less verbose and more grounded. The system showed better behavior on comparison-style questions where decomposition separated concept definitions from differential reasoning. Failure cases still occurred when supporting evidence was sparse or when distractor passages were semantically similar to the true supporting context.
+
+\subsection{Visualization Artifacts}
+The project exports comparison charts and metric breakdowns, allowing quick diagnostic checks during iteration. Evidence-level score tables are particularly useful in debugging threshold settings and validating whether reranker influence is calibrated appropriately.
+
+\section{Discussion}
+\subsection{Why the Gains Matter}
+Absolute improvements may look modest at first glance, but the consistency across multiple answer metrics indicates meaningful system-level improvement, not random fluctuation in a single score. In practical deployments, even single-digit relative gains can reduce downstream correction cost, especially when QA output is reviewed by humans.
+
+\subsection{Engineering Tradeoffs}
+WEAR-RAG increases pipeline complexity compared with baseline RAG. Additional compute is consumed by decomposition and reranking, and threshold tuning introduces another control dimension. However, modularization keeps this complexity manageable. Components can be toggled for latency-sensitive deployments.
+
+\subsection{Humanized System Behavior}
+The project objective was not only metric gains but also more human-aligned behavior: answers should be concise, evidence-backed, and transparent in source attribution. Evidence ranking displays and source-level traces improved interpretability during iterative testing.
+
+\subsection{Where WEAR-RAG Helps Most}
+From qualitative review logs and evidence traces, WEAR-RAG appears particularly helpful in three situations:
+\begin{enumerate}
+\item \textbf{Comparison-heavy prompts:} Questions asking why one concept is better than another are naturally split into sub-problems, reducing retrieval collapse into a single perspective.
+\item \textbf{Distractor-rich contexts:} Cross-encoder reranking lowers the influence of lexical look-alikes that often survive dense retrieval.
+\item \textbf{Context-budget pressure:} Weighted filtering prevents low-value chunks from consuming prompt budget.
+\end{enumerate}
+
+\subsection{Where Gains Are Smaller}
+The performance delta tends to shrink when baseline retrieval is already highly aligned with the gold supporting facts. In such cases, stronger curation helps less because the input set is already clean. This explains why MRR remains almost unchanged while answer metrics improve: the first relevant hit is often present in both systems, but overall context composition still differs.
+
+\section{Complexity and Efficiency Analysis}
+This section summarizes practical cost characteristics observed during development.
+
+\subsection{Asymptotic View}
+Let $N$ be number of chunks, $m$ number of sub-queries, and $k$ retrieval depth per sub-query.
+\begin{itemize}
+\item Dense retrieval in FAISS IndexFlatIP is efficient in practice for moderate $N$, with exact search and predictable behavior.
+\item Reranking cost scales roughly with $m \cdot k$ query-chunk pairs.
+\item Aggregation is linear in candidate count and negligible compared with reranking.
+\end{itemize}
+
+The main added cost versus baseline is cross-encoder reranking. This is a deliberate design choice: WEAR-RAG spends additional compute to reduce evidence noise before generation.
+
+\subsection{Memory and Runtime Notes}
+A practical engineering concern in local experiments is repeated model initialization. The shared model registry pattern amortizes this cost. During evaluation, each sample uses a fresh temporary vector index to avoid leakage across questions, while still reusing loaded embedding and reranking models.
+
+\subsection{Latency Tradeoff Perspective}
+WEAR-RAG is not intended to be the absolute fastest RAG variant. Instead, it targets an efficient quality-latency balance for settings where answer correctness and evidence transparency are more important than millisecond-level speed.
+
+\section{Error Taxonomy and Qualitative Failure Modes}
+To make the system analysis actionable, we tracked failures by type rather than only by metric drops.
+
+\subsection{Failure Type A: Retrieval Miss}
+Sometimes supporting facts do not appear in top retrieval candidates. In this case, reranking and aggregation cannot recover missing evidence. The likely remedy is stronger retriever training or larger candidate depth.
+
+\subsection{Failure Type B: Decomposition Drift}
+Rule-based decomposition can occasionally generate sub-queries that are syntactically valid but semantically broad. This introduces off-target retrieval and slightly noisier aggregation.
+
+\subsection{Failure Type C: Over-Compression}
+When thresholding is too aggressive, the system may remove useful but medium-scoring context. This can produce concise yet incomplete answers.
+
+\subsection{Failure Type D: Generator Under-Specification}
+Even with curated evidence, the generator may produce under-explained answers if prompt space is tight or question framing is ambiguous. This is a prompt-policy issue rather than a retrieval issue.
+
+\subsection{Human-Centered Debugging Workflow}
+A practical debugging loop emerged:
+\begin{enumerate}
+\item Inspect sub-queries for semantic drift.
+\item Inspect top reranked evidence and component scores.
+\item Compare retained versus filtered chunks.
+\item Review final prompt context and answer behavior.
+\end{enumerate}
+This workflow reduced blind hyperparameter tuning and helped isolate whether errors came from retrieval, aggregation, or generation.
+
+\section{Deployment and Productization Considerations}
+Although this project is research-oriented, deployment practicality was a first-class goal.
+
+\subsection{Service Interface}
+The Flask API design keeps the system composable with external frontends:
+\begin{itemize}
+\item upload endpoint for raw document ingestion,
+\item question endpoint returning answer and evidence,
+\item health endpoint for local model readiness checks.
+\end{itemize}
+
+This API shape supports both direct user interfaces and integration in larger orchestration systems.
+
+\subsection{Operational Modes}
+Two modes are useful in practice:
+\begin{enumerate}
+\item \textbf{Production mode:} full WEAR-RAG with dense retrieval, reranking, and local LLM.
+\item \textbf{Mock mode:} deterministic lightweight mode for demos, frontend tests, and CI checks.
+\end{enumerate}
+
+Mock mode was especially valuable for separating UI and API validation from heavy model dependencies.
+
+\subsection{Safety and Trust UX}
+Evidence-first response design improves user trust only if surfaced clearly. WEAR-RAG returns evidence blocks with source IDs and score breakdowns, enabling lightweight provenance inspection. In high-stakes settings, this should be combined with stricter citation rendering and user-facing uncertainty indicators.
+
+\section{Reproducibility Protocol}
+To support repeatability, we recommend the following protocol for future runs:
+
+\begin{enumerate}
+\item Fix random seeds for all sampling and model components where feasible.
+\item Freeze package versions in a complete requirements lock file.
+\item Record model identifiers and local runtime settings.
+\item Run baseline and WEAR-RAG on identical sample IDs.
+\item Export per-sample CSV outputs and archive plots.
+\item Report both aggregate metrics and error-category counts.
+\end{enumerate}
+
+\subsection{Suggested Reporting Template}
+A robust experiment card should include dataset split, sample count, runtime hardware, retriever and reranker models, prompt settings, and confidence intervals for each metric.
+
+\subsection{Versioned Artifact Bundle}
+For paper reproducibility, a versioned artifact bundle should contain:
+\begin{itemize}
+\item source code snapshot,
+\item exact config files,
+\item result CSV files,
+\item generated figures,
+\item environment manifest.
+\end{itemize}
+
+\section{Expanded Threats to Validity}
+Beyond dataset and model constraints, two practical factors affect interpretation.
+
+\subsection{Prompt-Specific Effects}
+Prompt wording can shift generation behavior significantly, even with fixed evidence. Reported gains therefore reflect both retrieval quality and prompt policy interactions.
+
+\subsection{Infrastructure Variance}
+Local CPU/GPU differences influence throughput and occasionally timeout behavior in end-to-end evaluations. Quality metrics are less sensitive than runtime metrics, but deployment conclusions should still account for environment differences.
+
+\section{Ablation Plan and Expected Effects}
+The current benchmark compares baseline against full WEAR-RAG. The architecture naturally supports ablations:
+\begin{enumerate}
+\item Remove decomposition: likely lower multi-hop coverage.
+\item Remove reranker: likely noisier evidence ordering.
+\item Remove density term: likely weaker distinction between rich and shallow chunks.
+\item Set threshold to zero: likely more context noise.
+\item Replace semantic chunking with fixed chunking: likely coherence loss.
+\end{enumerate}
+
+A practical next experiment is to run all ablations on the same 100-sample slice for direct comparability, then expand to larger sample sizes for confidence intervals.
+
+\section{Limitations and Threats to Validity}
+\subsection{Dataset Scope}
+Results are limited to HotpotQA distractor validation and a 100-sample subset. Generalization to other domains and question types requires broader evaluation.
+
+\subsection{Statistical Testing}
+This draft reports aggregate means without significance tests. Bootstrap confidence intervals or paired significance tests should be included in publication-grade finalization.
+
+\subsection{Dependency Reproducibility}
+The root dependency list in the project should be expanded and pinned to guarantee one-command reproducibility across environments.
+
+\subsection{Model Variability}
+Generation quality can vary with local Ollama model builds, hardware constraints, and runtime settings. Mock mode mitigates this for unit tests but not for end-task quality evaluation.
+
+\subsection{Scope of Human Evaluation}
+This draft focuses on automated metrics and engineering diagnostics. A fuller publication should include human evaluation on answer usefulness, faithfulness, and readability.
+
+\section{Future Research Directions}
+WEAR-RAG opens several promising paths:
+\begin{enumerate}
+\item \textbf{Learned aggregation:} Replace fixed weights with learned calibration from supervision or preference signals.
+\item \textbf{Adaptive thresholds:} Use query-aware thresholding instead of static global values.
+\item \textbf{Domain adaptation:} Fine-tune retriever and reranker on target domains (biomedical, legal, finance).
+\item \textbf{Citation-grounded generation:} Force sentence-level evidence attribution in outputs.
+\item \textbf{Long-context integration:} Combine WEAR-RAG with long-context models and hierarchical retrieval.
+\end{enumerate}
+
+\section{Practical Lessons Learned}
+This project yielded several practical lessons that may help teams building real-world RAG systems:
+
+\begin{enumerate}
+\item Better chunking and better reranking are necessary but not sufficient; explicit evidence filtering still matters.
+\item Diagnostics should be built into the pipeline from day one. Score traces and per-sample CSVs speed up debugging dramatically.
+\item Separation of concerns (retrieval, aggregation, generation) makes iteration safer and more measurable.
+\item Lightweight mock modes are not optional in engineering-heavy workflows; they keep demos and CI stable.
+\end{enumerate}
+
+\section{Ethical and Responsible Use Considerations}
+Grounded generation systems are often perceived as inherently trustworthy. This perception can be misleading if retrieval itself is biased or incomplete. WEAR-RAG reduces some risk by surfacing explicit evidence and encouraging abstention when context is insufficient, but it does not solve source quality bias. Deployment should include provenance checks, user-visible confidence cues, and domain-specific review pathways for high-stakes use cases.
+
+\section{Conclusion}
+WEAR-RAG demonstrates that improving evidence curation between retrieval and generation can produce reliable quality gains in multi-hop QA. The method is intentionally practical: all components are transparent, modular, and deployable on local infrastructure. On HotpotQA-100, WEAR-RAG consistently outperforms baseline RAG in EM, F1, ROUGE-L, BLEU-1, and retrieval precision while preserving retrieval rank behavior (MRR). These results support a broader lesson: in RAG systems, context quality is an optimization target in its own right.
+
+\appendices
+
+\section{Implementation Notes}
+\subsection{Shared Model Loading}
+A model registry pattern is used to load heavy embedding and reranking models once and share across pipeline instances, improving evaluation throughput and reducing startup overhead.
+
+\subsection{Web API Endpoints}
+The Flask app includes:
+\begin{itemize}
+\item \texttt{/api/health}: model and server readiness check.
+\item \texttt{/api/upload}: TXT/PDF parsing for document ingestion.
+\item \texttt{/api/ask}: end-to-end question answering with evidence output.
+\end{itemize}
+
+\subsection{Testing}
+Unit tests cover sentence splitting, chunk construction, metric correctness, aggregation behavior, token-budget trimming, and decomposition constraints.
+
+\subsection{Configuration Snapshot}
+Default settings used in this work:
+\begin{itemize}
+\item Embedding model: BAAI/bge-small-en
+\item Reranker model: BAAI/bge-reranker-base
+\item top\_k\_retrieval: 20
+\item top\_k\_rerank: 5
+\item score threshold: 0.3
+\item evidence weights: (0.5, 0.4, 0.1)
+\end{itemize}
+
+\section{Extended Module Walkthrough}
+\subsection{Document Processor}
+The semantic chunker balances coherence and size constraints. Adjacent sentence similarity decides topic boundaries, while overlap preserves continuity near split points.
+
+\subsection{Embedding Engine}
+The embedding layer prefixes instructions for passages and queries and normalizes vectors to ensure inner product in FAISS corresponds to cosine similarity.
+
+\subsection{Vector Store}
+The FAISS-backed store maps integer IDs to chunk metadata, supports retrieval for single and multi-query workflows, and can persist to disk for reuse.
+
+\subsection{Reranker}
+Cross-encoder reranking re-evaluates candidates jointly with the query, then deduplicates by chunk ID while keeping best-scoring instances.
+
+\subsection{Evidence Aggregator}
+Aggregation computes component and composite scores, applies thresholding, and trims by token budget. This makes context assembly both controllable and interpretable.
+
+\subsection{Generator}
+The generator is instructed to answer from evidence only and abstain when evidence is insufficient. This policy is central to reducing unsupported claims.
+
+\section{Pseudo-code for WEAR-RAG}
+\noindent\textbf{Input:} question $q$, documents $D$\\
+\noindent\textbf{Output:} answer $a$, ordered evidence set $E$
+
+\begin{enumerate}
+\item Chunk documents semantically: $C \gets \text{SemanticChunk}(D)$.
+\item Build retrieval index over $C$.
+\item Decompose query: $Q \gets \text{Decompose}(q)$ with $q \in Q$.
+\item For each sub-query $q_i \in Q$, retrieve candidates $R_i$ (top-20).
+\item Rerank and deduplicate candidates across all $R_i$.
+\item For each chunk $c$, compute evidence score using Eq.~(\ref{eq:evidence}).
+\item Filter by threshold: keep chunks with $S(c) \geq \theta$.
+\item Sort by $S(c)$ and trim by token budget.
+\item Generate answer from question plus curated evidence context.
+\end{enumerate}
+
+\section{Extended Error Analysis Checklist}
+\begin{enumerate}
+\item Was at least one supporting fact retrieved in top-20?
+\item Did decomposition create useful sub-queries or noisy expansions?
+\item Did reranker overvalue lexical overlap over semantic relevance?
+\item Were low-density chunks still admitted due to high similarity?
+\item Did generation abstain appropriately when evidence was inadequate?
+\end{enumerate}
+
+\section{Case Study Snapshots}
+\subsection{Case 1: Comparative Multi-hop Question}
+Question form: "Why is X better than Y for task Z?"
+
+Observed behavior: decomposition generated targeted sub-queries for each concept and comparative aspects. Aggregation promoted one high-quality evidence chunk per conceptual branch, leading to a more complete final answer than baseline retrieval.
+
+\subsection{Case 2: Distractor-Dense Context}
+Question form: entity relation with many lexically similar distractors.
+
+Observed behavior: reranker reduced lexical traps, and score thresholding removed short, repetitive snippets. Final generation showed improved factual focus.
+
+\subsection{Case 3: Sparse Evidence Scenario}
+Question form: under-specified or weakly represented in corpus.
+
+Observed behavior: both systems struggled, but WEAR-RAG more often produced constrained or abstaining responses rather than overconfident narratives.
+
+\section{Expanded Reproducibility Checklist}
+\begin{enumerate}
+\item Confirm dataset variant and split exactly match reported setup.
+\item Verify model names and versions for embedding/reranking/generation.
+\item Ensure equal sample list across compared systems.
+\item Store raw predictions, not just aggregate metrics.
+\item Track retrieval IDs and evidence scores per sample.
+\item Re-run at least three times for stability checks where stochasticity exists.
+\item Report runtime environment (OS, Python version, hardware).
+\item Archive all generated plots and logs with timestamps.
+\end{enumerate}
+
+\section*{Acknowledgment}
+The authors thank the project reviewers and peers who provided iterative feedback on retrieval diagnostics, evaluation clarity, and interface usability.
+
+\bibliographystyle{IEEEtran}
+\bibliography{wear_rag_refs}
+
+\end{document}

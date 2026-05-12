@@ -1,0 +1,10 @@
+system,num_samples,exact_match,f1,rouge_l,bleu_1,mrr,retrieval_precision
+Naive RAG (BM25),5,0.0,0.01,0.01,0.0051,0.6667,0.2
+Baseline RAG (k=5),5,0.0,0.01,0.01,0.0051,1.0,0.28
+Baseline RAG (k=10),5,0.0,0.01,0.01,0.0051,1.0,0.2
+Decomposition-Only,5,0.0,0.01,0.01,0.0051,1.0,0.28
+Rerank-Only,5,0.0,0.01,0.01,0.0051,1.0,0.36
+Hybrid Retrieval,5,0.0,0.01,0.01,0.0051,1.0,0.28
+WEAR-RAG (Full),5,0.0,0.01,0.01,0.0051,1.0,0.36
+WEAR-RAG (avg-agg),5,0.0,0.01,0.01,0.0051,1.0,0.36
+WEAR-RAG (max-agg),5,0.0,0.01,0.01,0.0051,1.0,0.36
