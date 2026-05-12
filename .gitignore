@@ -58,13 +58,40 @@ uploads/
 Thumbs.db
 desktop.ini
 
-# ── Misc temp files ──────────────────────────────────────────
+# ── Misc temp / one-off files ────────────────────────────────
 shell_test.txt
 eval_*.log
 *.trace.log
 debug_import.py
 test_sample.pdf
 scripts/
-
-# ── Internal / non-project files ─────────────────────────────
 RESEARCH PAPER PLAG AND AI TEXT.docx
+
+# ── Figure generation scripts (one-off, not part of pipeline)─
+fix_fig5.py
+generate_before_after_fig.py
+generate_extra_figures.py
+generate_paper_figures.py
+
+# ── Evaluation runner scripts (one-off) ──────────────────────
+run_eval_100_stub_system.py
+run_full_eval.py
+mock_pipeline.py
+eval_checkpoints/
+
+# ── Paper drafts (only final PDF kept) ───────────────────────
+research_paper_wear_rag.md
+WEAR_RAG_Research_Paper*
+WEAR_RAG_IEEE_Final.tex
+wear_rag_ieee_paper.*
+wear_rag_refs.bib
+
+# ── Loose results / images (kept in eval_results/ & paper_figures/) ─
+results_baseline_rag.csv
+results_wear-rag.csv
+wear_rag_comparison.png
+wear_rag_metrics.png
+
+# ── Duplicate / old webapp ───────────────────────────────────
+wear_rag_webapp/
+templates/demo.html
