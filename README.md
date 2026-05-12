@@ -201,7 +201,7 @@ WEAR-RAG/
 
 ```bash
 # Clone the repository
-git clone https://github.com/<your-username>/WEAR-RAG.git
+git clone https://github.com/sam01023/WEAR-RAG.git
 cd WEAR-RAG
 
 # Create virtual environment
